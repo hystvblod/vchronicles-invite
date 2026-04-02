@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Invitation VChronicles</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100%;
+      background: radial-gradient(circle at top, #16325e 0, #203d7a 55%, #0b1630 100%);
+      color: #fff;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .box {
+      max-width: 420px;
+    }
+
+    .logo {
+      width: min(78vw, 320px);
+      height: auto;
+      display: block;
+      margin: 0 auto 18px;
+      animation: pulse 2.2s ease-in-out infinite;
+      filter: drop-shadow(0 12px 28px rgba(0,0,0,.35));
+    }
+
+    .txt {
+      font-size: 18px;
+      font-weight: 800;
+      text-shadow: 0 2px 10px rgba(0,0,0,.35);
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.92); opacity: .9; }
+      50% { transform: scale(1.08); opacity: 1; }
+      100% { transform: scale(0.92); opacity: .9; }
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <img class="logo" src="logo-vchronicles.png" alt="VChronicles">
+    <div class="txt">Redirection en cours...</div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    (async function () {
+      const params = new URLSearchParams(window.location.search);
+      const inviterUuid = (params.get("inviter_uuid") || "").trim();
+
+      const SUPABASE_URL = "https://eygcqhrccukwvmepacrt.supabase.co";
+      const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV5Z2NxaHJjY3Vrd3ZtZXBhY3J0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzExODk4NTYsImV4cCI6MjA4Njc2NTg1Nn0.fY7BoyHWz65bQHy2Kk24P_mqwxCpUVCibajgOncDhH8";
+
+      const PLAY_URL = "https://play.google.com/store/apps/details?id=com.vboldstudio.vchronicles";
+
+      // tu gères iOS après
+      const APP_STORE_URL = PLAY_URL;
+
+      const ua = navigator.userAgent || "";
+      const isIOS = /iPhone|iPad|iPod/i.test(ua);
+      const targetUrl = isIOS ? APP_STORE_URL : PLAY_URL;
+
+      if (!inviterUuid) {
+        window.location.replace(targetUrl);
+        return;
+      }
+
+      try {
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        await sb.rpc("secure_claim_referral_click", {
+          p_inviter: inviterUuid
+        });
+      } catch (err) {
+        console.error("[invite] secure_claim_referral_click failed", err);
+      }
+
+      window.location.replace(targetUrl);
+    })();
+  </script>
+</body>
+</html>
